@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class ApiController extends Controller
+
+
 {
     public function getPrediction(Request $request)
     {
@@ -18,28 +20,36 @@ class ApiController extends Controller
 
         $latitude = $request->input('latitude');
         $longitude = $request->input('longitude');
-        $api_key = 'ecc0077b617286e1e79731c8473fb975';
+        $api_key = config('services.weather_api.key');
+        $ml_model_url = config('services.ml_model.url');
+
         // Call API 1
         $response1 = Http::get('https://api.openweathermap.org/data/2.5/forecast/daily', [
             'lat' => $latitude,
             'lon' => $longitude,
             'appid' => $api_key,
         ]);
-
-        $weatherData = $this->extractCurrentWeatherData($response1->json());
         // Call API 2
         $response2 = Http::get('https://api.open-meteo.com/v1/elevation', [
             'latitude' => $latitude,
             'longitude' => $longitude,
         ]);
+        // dd($response2);
         
-        $modelInput = $this->prepareModelInput($weatherData['rain'], $response2['elevation'][0]);
-        // dd($modelInput);
-        
-        $prediction = $this->callMachineLearningModel($modelInput);
+        $weatherData = $this->extractCurrentWeatherData($response1->json());
+        $rainfall = $weatherData['rain'];
+        $weather = $weatherData['weather'];
+        $elevation = $response2['elevation'][0];
+
+        $modelInput = $this->prepareModelInput($rainfall, $elevation);
+
+        $prediction = $this->callMachineLearningModel($ml_model_url, $modelInput);
 
         return response()->json([
             'prediction' => $prediction,
+            'weather' =>  $weather,
+            'elevation' =>  $elevation,
+            'rainfall' => $rainfall,
         ]);
     }
     private function extractCurrentWeatherData($responseData)
@@ -73,11 +83,11 @@ class ApiController extends Controller
         ];
     }
 
-    private function callMachineLearningModel($input)
+    private function callMachineLearningModel($url, $input)
     {
-        // Call your machine learning model here
-        $modelResponse = Http::post('https://yourmlmodel.example.com/predict', $input);
 
+        $modelResponse = Http::post($url, $input);
         return $modelResponse->json();
+
     }
 }

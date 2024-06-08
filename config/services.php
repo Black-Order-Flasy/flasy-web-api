@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'weather_api' => [
+        'key' => env('WEATHER_API_KEY'),
+    ],
+
+    'ml_model' => [
+        'url' => env('ML_MODEL_URL'),
+    ],
+
 ];
