@@ -9,3 +9,4 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::get('/get-prediction', [ApiController::class, 'getPrediction']);
+Route::get('/get-all-prediction', [ApiController::class, 'getAllPrediction']);
