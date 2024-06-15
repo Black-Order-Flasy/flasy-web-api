@@ -4,7 +4,9 @@ COPY . /app
 RUN composer install
 
 FROM php:8.2-apache
-RUN docker-php-ext-install pdo pdo_mysql
+RUN docker-php-ext-install pdo pdo_mysql 
+RUN pecl install grpc
+RUN php -r "echo extension_loaded('grpc') ? 'yes' : 'no';"
 
 EXPOSE 8080
 COPY --from=build /app /var/www/
