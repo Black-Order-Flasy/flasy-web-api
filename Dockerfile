@@ -1,14 +1,18 @@
+# Build stage
 FROM composer:2.6.5 as build
 WORKDIR /app
 COPY . /app
-RUN composer install
+RUN composer install --ignore-platform-req=ext-grpc
 
+# Production stage
 FROM php:8.2-apache
-RUN docker-php-ext-install pdo pdo_mysql 
-RUN pecl install grpc
-RUN php -r "echo extension_loaded('grpc') ? 'yes' : 'no';"
+RUN apt-get update && apt-get install -y libgrpc-dev \
+    && docker-php-ext-install pdo pdo_mysql
 
-EXPOSE 8080
+WORKDIR /var/www/
+COPY --from=build /app /var/www/
+COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
+
 COPY --from=build /app /var/www/
 COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
 COPY .env.example /var/www/.env
@@ -17,9 +21,4 @@ RUN chmod 777 -R /var/www/storage/ && \
     chown -R www-data:www-data /var/www/ && \
     a2enmod rewrite
 
-
-
-
-
-
-
+EXPOSE 8080
