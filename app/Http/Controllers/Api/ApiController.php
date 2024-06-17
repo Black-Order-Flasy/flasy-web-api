@@ -8,6 +8,73 @@ use Illuminate\Support\Facades\Http;
 
 class ApiController extends Controller
 {
+    public function getFuturePrediction(Request $request)
+    {
+        // Validasi request
+        $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);
+
+        $latitude = $request->input('latitude');
+        $longitude = $request->input('longitude');
+        $api_key = config('services.weather_api.key');
+        $ml_model_url = config('services.ml_model.url');
+
+        // Panggil API 1 (cuaca)
+        $response1 = Http::get('https://api.openweathermap.org/data/2.5/forecast/daily', [
+            'lat' => $latitude,
+            'lon' => $longitude,
+            'appid' => $api_key,
+        ]);
+        // Panggil API 2 (elevasi)
+        $response2 = Http::get('https://api.open-meteo.com/v1/elevation', [
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+        ]);
+
+        // Ambil data elevasi
+        $elevation = $response2['elevation'][0];
+
+        // Iterasi melalui setiap entri dalam response API 1
+        $predictions = [];
+        foreach ($response1->json()['list'] as $weatherEntry) {
+            $weatherData = $this->extractFutureWeatherData($weatherEntry);
+            $rainfall = $weatherData['rain'];
+            $weather = $weatherData['weather'];
+                
+            $timestamp = $weatherEntry['dt'];
+            $date = date('Y-m-d', $timestamp);
+            $hour = date('H:i:s', $timestamp);
+
+            if (!$rainfall) {
+                $predictions[] = [
+                    'date' => $date,
+                    'hour' => $hour,
+                    'prediction' => 'aman',
+                    'weather' => $weather,
+                    'elevation' => $elevation,
+                    'rainfall' => $rainfall,
+                ];
+            }else{
+                $modelInput = $this->prepareModelInput($rainfall, $elevation);
+
+                $prediction = $this->callMachineLearningModel($ml_model_url, $modelInput);
+    
+                $predictions[] = [
+                    'date' => $date,
+                    'hour' => $hour,
+                    'prediction' => $prediction['category'], // hanya menampilkan kategori
+                    'weather' => $weather,
+                    'elevation' => $elevation,
+                    'rainfall' => $rainfall,
+                ];
+            }
+
+        }
+
+        return response()->json($predictions);
+    }
     public function getAllPrediction(Request $request)
     {
         // Validasi request
@@ -44,31 +111,34 @@ class ApiController extends Controller
             $weatherData = $this->extractWeatherData($weatherEntry);
             $rainfall = $weatherData['rain'];
             $weather = $weatherData['weather'];
-
-            $modelInput = $this->prepareModelInput($rainfall, $elevation);
-
-            $prediction = $this->callMachineLearningModel($ml_model_url, $modelInput);
-
+                
             $timestamp = $weatherEntry['dt'];
             $date = date('Y-m-d', $timestamp);
             $hour = date('H:i:s', $timestamp);
+
+            if (!$rainfall) {
+                $predictions[] = [
+                    'date' => $date,
+                    'hour' => $hour,
+                    'prediction' => 'aman',
+                    'weather' => $weather,
+                    'elevation' => $elevation,
+                    'rainfall' => $rainfall,
+                ];
+            }else{
+                $modelInput = $this->prepareModelInput($rainfall, $elevation);
+
+                $prediction = $this->callMachineLearningModel($ml_model_url, $modelInput);
     
-            $predictions[] = [
-                'date' => $date,
-                'hour' => $hour,
-                'prediction' => $prediction['category'], // hanya menampilkan kategori
-                'weather' => $weather,
-                'elevation' => $elevation,
-                'rainfall' => $rainfall,
-            ];
-            
-            // $predictions[] = [
-            //     'datetime' => $weatherEntry['dt'],
-            //     'prediction' => $prediction['category'],
-            //     'weather' => $weather,
-            //     'elevation' => $elevation,
-            //     'rainfall' => $rainfall,
-            // ];
+                $predictions[] = [
+                    'date' => $date,
+                    'hour' => $hour,
+                    'prediction' => $prediction['category'], // hanya menampilkan kategori
+                    'weather' => $weather,
+                    'elevation' => $elevation,
+                    'rainfall' => $rainfall,
+                ];
+            }
         }
 
         return response()->json($predictions);
@@ -93,6 +163,7 @@ class ApiController extends Controller
             'lat' => $latitude,
             'lon' => $longitude,
             'appid' => $api_key,
+            'cnt' => '24',
         ]);
         // Call API 2
         $response2 = Http::get('https://api.open-meteo.com/v1/elevation', [
@@ -105,17 +176,28 @@ class ApiController extends Controller
         $rainfall = $weatherData['rain'];
         $weather = $weatherData['weather'];
         $elevation = $response2['elevation'][0];
+       
+        if (!$rainfall) {
+            return response()->json([
+                'prediction' => 'aman',
+                'weather' => $weather,
+                'elevation' => $elevation,
+                'rainfall' => $rainfall,
+            ]);
+        } else {
+            $modelInput = $this->prepareModelInput($rainfall, $elevation);
 
-        $modelInput = $this->prepareModelInput($rainfall, $elevation);
+            $prediction = $this->callMachineLearningModel($ml_model_url, $modelInput);
 
-        $prediction = $this->callMachineLearningModel($ml_model_url, $modelInput);
+            return response()->json([
+                'prediction' => $prediction['category'],
+                'weather' => $weather,
+                'elevation' => $elevation,
+                'rainfall' => $rainfall,
+            ]);
+        }
 
-        return response()->json([
-            'prediction' => $prediction['category'],
-            'weather' => $weather,
-            'elevation' => $elevation,
-            'rainfall' => $rainfall,
-        ]);
+
     }
     private function extractCurrentWeatherData($responseData)
     {
@@ -140,26 +222,27 @@ class ApiController extends Controller
             'rain' => $rain,
         ];
     }
-    // private function extractWeatherData($weatherEntry)
-    // {
-    //     $weather = isset($weatherEntry['weather'][0]['main']) ? $weatherEntry['weather'][0]['main'] : null;
-    //     $rain = isset($weatherEntry['rain']) ? $weatherEntry['rain'] : 0;
 
-    //     return [
-    //         'weather' => $weather,
-    //         'rain' => $rain,
-    //     ];
-    // }
     private function extractWeatherData($weatherEntry)
-{
-    $weather = isset($weatherEntry['weather'][0]['main']) ? $weatherEntry['weather'][0]['main'] : null;
-    $rain = isset($weatherEntry['rain']['1h']) ? $weatherEntry['rain']['1h'] : 0;
+    {
+        $weather = isset($weatherEntry['weather'][0]['main']) ? $weatherEntry['weather'][0]['main'] : null;
+        $rain = isset($weatherEntry['rain']['1h']) ? $weatherEntry['rain']['1h'] : 0;
 
-    return [
-        'weather' => $weather,
-        'rain' => $rain,
-    ];
-}
+        return [
+            'weather' => $weather,
+            'rain' => $rain,
+        ];
+    }
+    private function extractFutureWeatherData($weatherEntry)
+    {
+        $weather = isset($weatherEntry['weather'][0]['main']) ? $weatherEntry['weather'][0]['main'] : null;
+        $rain = isset($weatherEntry['rain']) ? $weatherEntry['rain'] : 0;
+
+        return [
+            'weather' => $weather,
+            'rain' => $rain,
+        ];
+    }
     private function prepareModelInput($data1, $data2)
     {
         return [

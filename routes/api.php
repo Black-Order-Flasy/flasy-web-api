@@ -10,3 +10,4 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/get-prediction', [ApiController::class, 'getPrediction']);
 Route::get('/get-all-prediction', [ApiController::class, 'getAllPrediction']);
+Route::get('/get-future-prediction', [ApiController::class, 'getFuturePrediction']);
