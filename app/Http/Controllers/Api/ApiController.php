@@ -51,7 +51,7 @@ class ApiController extends Controller
                 $predictions[] = [
                     'date' => $date,
                     'hour' => $hour,
-                    'prediction' => 'aman',
+                    'prediction' => 'Aman',
                     'weather' => $weather,
                     'elevation' => $elevation,
                     'rainfall' => $rainfall,
