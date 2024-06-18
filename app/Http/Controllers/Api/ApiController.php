@@ -44,10 +44,8 @@ class ApiController extends Controller
             $weather = $weatherData['weather'];
 
             $timestamp = $weatherEntry['dt'];
-            $datetime = new \DateTime("@$timestamp");
-            $datetime->setTimezone(new \DateTimeZone('Asia/Singapore'));
-            $date = $datetime->format('Y-m-d');
-            $hour = $datetime->format('H:i:s');
+            $date = date('Y-m-d', $timestamp);
+            $hour = date('H:i:s', $timestamp);
 
             if (!$rainfall) {
                 $predictions[] = [
@@ -115,9 +113,10 @@ class ApiController extends Controller
             $rainfall = $weatherData['rain'];
             $weather = $weatherData['weather'];
 
-            $timestamp = $weatherEntry['dt'];
-            $date = date('Y-m-d', $timestamp);
-            $hour = date('H:i:s', $timestamp);
+            $datetime = new \DateTime("@$timestamp");
+            $datetime->setTimezone(new \DateTimeZone('Asia/Singapore'));
+            $date = $datetime->format('Y-m-d');
+            $hour = $datetime->format('H:i:s');
 
             if (!$rainfall) {
                 $predictions[] = [
