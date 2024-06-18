@@ -8,6 +8,6 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::get('/get-prediction', [ApiController::class, 'getPrediction']);
-Route::get('/get-all-prediction', [ApiController::class, 'getAllPrediction']);
-Route::get('/get-future-prediction', [ApiController::class, 'getFuturePrediction']);
+Route::get('/prediction-flood', [ApiController::class, 'predictionFlood']);
+Route::get('/today-flood', [ApiController::class, 'todayFlood']);
+Route::get('/forecast-flood', [ApiController::class, 'forecastFlood']);
