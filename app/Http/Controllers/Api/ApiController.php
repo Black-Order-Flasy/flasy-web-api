@@ -45,7 +45,7 @@ class ApiController extends Controller
 
             $timestamp = $weatherEntry['dt'];
             $datetime = new \DateTime("@$timestamp");
-            $datetime->setTimezone(new \DateTimeZone('GMT+08:00'));
+            $datetime->setTimezone(new \DateTimeZone('Asia/Singapore'));
             $date = $datetime->format('Y-m-d');
             $hour = $datetime->format('H:i:s');
 
