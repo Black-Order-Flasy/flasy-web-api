@@ -113,6 +113,7 @@ class ApiController extends Controller
             $rainfall = $weatherData['rain'];
             $weather = $weatherData['weather'];
 
+            $timestamp = $weatherEntry['dt'];
             $datetime = new \DateTime("@$timestamp");
             $datetime->setTimezone(new \DateTimeZone('Asia/Singapore'));
             $date = $datetime->format('Y-m-d');
