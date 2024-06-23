@@ -17,7 +17,7 @@ class FirestoreService
         $projectId = env('FIRESTORE_PROJECT_ID');
         $apiKey = env('FIRESTORE_API_KEY');
         $this->db = new FirestoreClient($projectId, $apiKey, [
-            'database' => '(default)',
+            'database' => 'flasy-app-database',
         ]);
         $this->name = $collection;
     }
