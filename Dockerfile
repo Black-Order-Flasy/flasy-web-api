@@ -2,16 +2,12 @@
 FROM composer:2.6.5 as build
 WORKDIR /app
 COPY . /app
-RUN composer install --ignore-platform-req=ext-grpc
+RUN composer install 
 
 # Production stage
 FROM php:8.2-apache
 RUN apt-get update && apt-get install -y libgrpc-dev \
     && docker-php-ext-install pdo pdo_mysql
-
-WORKDIR /var/www/
-COPY --from=build /app /var/www/
-COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 COPY --from=build /app /var/www/
 COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf

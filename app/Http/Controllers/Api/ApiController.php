@@ -3,11 +3,36 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\FirestoreService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class ApiController extends Controller
 {
+    public function getEvacuation(Request $request)
+    {
+        // $request->validate([
+        //     'latitude' => 'required|numeric',
+        //     'longitude' => 'required|numeric',
+        // ]);
+        $collectionName = 'evacuation_points';
+
+        $firestoreService = app()->make(FirestoreService::class, ['collection' => $collectionName]);
+
+        $collectionData = $firestoreService->getDocuments();
+
+        $district = $request->district ?? '';
+
+        if ($district) {
+            $collectionData = array_filter($collectionData, function ($document) use ($district) {
+                return isset($document['district']) && $document['district'] === $district;
+            });
+            $collectionData = array_values($collectionData);
+        }
+        
+        return response()->json($collectionData);
+    }
+
     public function forecastFlood(Request $request)
     {
         // Validasi request

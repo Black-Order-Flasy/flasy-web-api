@@ -1,20 +1,25 @@
 <?php
 
 namespace App\Services;
+use MrShan0\PHPFirestore\FirestoreClient;
 
-use Google\Cloud\Firestore\FirestoreClient;
+
 
 class FirestoreService
 {
     protected $db;
     protected $name;
 
-    public function __construct()
+    public function __construct($collection)
     {
-        $this->db = new FirestoreClient([
-            'keyFilePath' => env('FIREBASE_CREDENTIALS'),
+        $projectId = env('FIRESTORE_PROJECT_ID');
+        $apiKey = env('FIRESTORE_API_KEY');
+        $projectId = env('FIRESTORE_PROJECT_ID');
+        $apiKey = env('FIRESTORE_API_KEY');
+        $this->db = new FirestoreClient($projectId, $apiKey, [
+            'database' => '(default)',
         ]);
-        $this->name = 'collection-name'; // Change this to your collection name
+        $this->name = $collection;
     }
 
     public function addDocument($data)
@@ -24,14 +29,19 @@ class FirestoreService
 
     public function getDocuments()
     {
-        $documents = $this->db->collection($this->name)->documents();
+        $collections = $this->db->listDocuments($this->name, [
+
+        ]);
+        $documents = $collections['documents'];
+        // dd($documents);die;
+        
         $data = [];
+
         foreach ($documents as $document) {
-            if ($document->exists()) {
-                $data[] = $document->data();
-            }
+            $data[] = $document->toArray();
         }
         return $data;
+    
     }
 
     public function getDocument($id)
@@ -53,4 +63,26 @@ class FirestoreService
     {
         $this->db->collection($this->name)->document($id)->delete();
     }
+
+    private function parseFirestoreValue($value)
+    {
+        switch (key($value)) {
+            case 'stringValue':
+                return $value['stringValue'];
+            case 'integerValue':
+                return (int) $value['integerValue'];
+            case 'doubleValue':
+                return (float) $value['doubleValue'];
+            case 'timestampValue':
+                return $value['timestampValue'];
+            case 'geoPointValue':
+                return $value['geoPointValue'];
+            case 'arrayValue':
+                return array_map([$this, 'parseFirestoreValue'], $value['arrayValue']['values']);
+            // Add more cases as needed
+            default:
+                return null;
+        }
+    }
 }
+
