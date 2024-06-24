@@ -24,9 +24,12 @@ class ApiController extends Controller
         $district = $request->district ?? '';
 
         if ($district) {
+            $district = explode(' ', $request->district)[1];
+
             $collectionData = array_filter($collectionData, function ($document) use ($district) {
                 return isset($document['district']) && $document['district'] === $district;
             });
+            
             $collectionData = array_values($collectionData);
         }
         

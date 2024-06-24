@@ -11,4 +11,4 @@ Route::get('/user', function (Request $request) {
 Route::get('/prediction-flood', [ApiController::class, 'predictionFlood']);
 Route::get('/today-flood', [ApiController::class, 'todayFlood']);
 Route::get('/forecast-flood', [ApiController::class, 'forecastFlood']);
-Route::get('/evacuation-point', [ApiController::class, 'getEvacuation']);
+Route::post('/evacuation-point', [ApiController::class, 'getEvacuation']);
