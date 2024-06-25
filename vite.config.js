@@ -12,6 +12,6 @@ export default defineConfig({
         }),
     ],
     build: {
-        base: 'https://flasy-api-jrqtpa5u6q-et.a.run.app/', // Replace with your Cloud Run URL
+        base: 'https://flasy-api-jrqtpa5u6q-et.a.run.app/', // R
       }
 });
