@@ -14,8 +14,15 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors:{
+                flasy: '#bfebf6',
+                flasyapp: '#d6edfb',
+                flasyapp2: '#74c3f3',
+            },
         },
     },
 
-    plugins: [forms],
+    plugins: [
+        forms, require('daisyui'),
+    ],
 };

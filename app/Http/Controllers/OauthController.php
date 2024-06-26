@@ -28,7 +28,8 @@ class OauthController extends Controller
 
             if ($finduser && $finduser->verified) {
                 Auth::login($finduser);
-                return redirect('/dashboard');
+                return redirect('/');
+
             } elseif ($finduser) {
                 // toast('Menunggu Konfirmasi Admin', 'success');
                 Alert::success('Success', 'Menunggu Konfirmasi Admin');
@@ -39,12 +40,12 @@ class OauthController extends Controller
                     'email' => $user->email,
                     'gauth_id' => $user->id,
                     'gauth_type' => 'google',
-                    'password' => encrypt('4dm1nflasy')
+                    'password' => bcrypt('4dm1nflasy')
                 ]);
 
                 $role = Role::where('name', 'Volunteer')->first();
                 $newUser->assignRole($role);
-               
+
                 Alert::success('Success', 'Sukses terdaftar, Menunggu Konfirmasi Admin');
                 return redirect('/login');
             }
