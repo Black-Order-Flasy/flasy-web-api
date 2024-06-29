@@ -19,5 +19,3 @@ yarn-error.log
 /.idea
 /.vscode
 /database/flasy-db-firebase-adminsdk-jtyjn-df6797b212.json
-database/database.sqlite
-database/database.sqlite
