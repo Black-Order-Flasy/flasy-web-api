@@ -32,14 +32,27 @@ class FirestoreService
         $collections = $this->db->listDocuments($this->name, [
 
         ]);
+        // dd($collections);
+
         $documents = $collections['documents'];
-        // dd($documents);die;
         
         $data = [];
-
+        
         foreach ($documents as $document) {
-            $data[] = $document->toArray();
+            $documentData = $document->toArray();
+            $documentName = $document->getName();
+            
+            // Extract the document ID from the document name
+            $documentId = substr($documentName, strrpos($documentName, '/') + 1);
+            
+            // Add the document ID to the document data
+            $documentData['id'] = $documentId;
+            
+            $data[] = $documentData;
         }
+        
+        // dd($data);die;
+
         return $data;
     
     }
@@ -75,8 +88,6 @@ class FirestoreService
                 return (float) $value['doubleValue'];
             case 'timestampValue':
                 return $value['timestampValue'];
-            case 'geoPointValue':
-                return $value['geoPointValue'];
             case 'arrayValue':
                 return array_map([$this, 'parseFirestoreValue'], $value['arrayValue']['values']);
             // Add more cases as needed

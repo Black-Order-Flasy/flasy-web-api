@@ -12,4 +12,73 @@
      border: 1px solid rgba(255, 255, 255, 0.34);
  }
  
- 
+ /* body {
+    height: 100vh;
+    width: 100vw;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .sky {
+    background-image: url("https://i.imgur.com/HRKpV6s.png");
+    background-size: cover;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    overflow: hidden;
+  }
+  
+  .cloud-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 110vw;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+  }
+  
+  @keyframes animateCloud {
+    0% {
+      transform: translateX(-10%);
+    }
+    100% {
+      transform: translateX(200%);
+    }
+  }
+  
+  .cloud {
+    transform: scale(1);
+    z-index: 0;
+    top: 0vh;
+    height: 10vh;
+    overflow: visible;
+    animation: animateCloud 100s linear infinite -60s;
+  }
+  
+  .cloud-part {
+    width: 300px;
+    height: 150px;
+    border-radius: 50%;
+    position: absolute;
+    top: -20vh;
+    left: -50vw;
+    opacity: 0.7;
+  }
+  
+  #cloud-back {
+    filter: url(#filter-back);
+    box-shadow: 300px 300px 30px -20px #fff;
+  }
+  
+  #cloud-mid {
+    filter: url(#filter-mid);
+    box-shadow: 300px 340px 70px -60px rgba(158, 168, 179, 0.3);
+  }
+  
+  #cloud-front {
+    filter: url(#filter-front);
+    box-shadow: 300px 370px 60px -100px rgba(0, 0, 0, 0.2);
+  }
+   */

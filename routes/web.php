@@ -25,6 +25,9 @@ Route::middleware(['auth' ])->group(function () {
     });
     Route::prefix('evacuation')->name('evacuation.')->group(function () {
         Route::get('/', [EvacuationPointController::class, 'index'])->name('index');
+        Route::get('create', [EvacuationPointController::class, 'create'])->name('create');
+        Route::post('store', [EvacuationPointController::class, 'store'])->name('store');
+        Route::get('delete/{id}', [EvacuationPointController::class, 'delete'])->name('delete');
     });
 });
 Route::middleware(['auth', 'role:Volunteer'])->group(function () {
