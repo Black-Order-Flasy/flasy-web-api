@@ -36,7 +36,7 @@
                                 <td>{{$item['max_people']}}</td>
                                 <td>{{$item['latitude']}}</td>
                                 <td>{{$item['longitude']}}</td>
-                                <td>{{$item['no_wa'] ?? ''}}</td>
+                                <td>{{$item['nomor_wa'] ?? ''}}</td>
                                 <td class="text-center align-middle">
                                     @foreach ($item['supply'] as $supply)
                                     <span class="w-auto h-auto badge text-xs lg:text-md "> {{$supply}}</span>

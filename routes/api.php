@@ -12,3 +12,4 @@ Route::get('/prediction-flood', [ApiController::class, 'predictionFlood']);
 Route::get('/today-flood', [ApiController::class, 'todayFlood']);
 Route::get('/forecast-flood', [ApiController::class, 'forecastFlood']);
 Route::post('/evacuation-point', [ApiController::class, 'getEvacuation']);
+Route::post('/get-nearby-flood', [ApiController::class, 'getNearbyFlood']);
