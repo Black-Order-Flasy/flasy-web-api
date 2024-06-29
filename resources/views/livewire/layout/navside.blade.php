@@ -4,7 +4,9 @@
         <div class="flex flex-col items-center justify-center">
             <a href="/"><img class="mt-4" src="https://storage.googleapis.com/flasy-bucket/assets/flasyy.png"
                     alt="Description of the image" width="200px" /></a>
-
+                    {{-- <a href="/" wire:navigate>
+                        <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+                    </a> --}}
         </div>
         <hr class="mt-2 mx-8" style="border-color: white; height: 2px;">
         <ul class="menu p-4 w-64 min-h-full text-blue-950 text-lg">

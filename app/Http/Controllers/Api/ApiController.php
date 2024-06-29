@@ -10,31 +10,43 @@ use Illuminate\Support\Facades\Http;
 class ApiController extends Controller
 {
     public function getEvacuation(Request $request)
-    {
-        // $request->validate([
-        //     'latitude' => 'required|numeric',
-        //     'longitude' => 'required|numeric',
-        // ]);
-        $collectionName = 'evacuation_points';
+{
+    // $request->validate([
+    //     'latitude' => 'required|numeric',
+    //     'longitude' => 'required|numeric',
+    // ]);
+    $collectionName = 'evacuation_points';
 
-        $firestoreService = app()->make(FirestoreService::class, ['collection' => $collectionName]);
+    $firestoreService = app()->make(FirestoreService::class, ['collection' => $collectionName]);
 
-        $collectionData = $firestoreService->getDocuments();
+    $collectionData = $firestoreService->getDocuments();
 
-        $district = $request->district ?? '';
-
-        if ($district) {
-            $district = explode(' ', $request->district)[1];
-
-            $collectionData = array_filter($collectionData, function ($document) use ($district) {
-                return isset($document['district']) && $document['district'] === $district;
-            });
-            
-            $collectionData = array_values($collectionData);
+    // Convert latitude and longitude to number
+    $collectionData = array_map(function ($document) {
+        if (isset($document['latitude'])) {
+            $document['latitude'] = (float)$document['latitude'];
         }
+        if (isset($document['longitude'])) {
+            $document['longitude'] = (float)$document['longitude'];
+        }
+        return $document;
+    }, $collectionData);
+
+    $district = $request->district ?? '';
+
+    if ($district) {
+        $district = explode(' ', $request->district)[1];
+
+        $collectionData = array_filter($collectionData, function ($document) use ($district) {
+            return isset($document['district']) && $document['district'] === $district;
+        });
         
-        return response()->json($collectionData);
+        $collectionData = array_values($collectionData);
     }
+    
+    return response()->json($collectionData);
+}
+
 
     public function forecastFlood(Request $request)
     {

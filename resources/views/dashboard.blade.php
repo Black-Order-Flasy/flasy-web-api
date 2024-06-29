@@ -1,6 +1,6 @@
 <x-app-layout>
 
-    <div class="flex justify-start flex-col lg:flex-row lg:flex-wrap lg:items-stretch gap-4 ps-5">
+    <div class="flex justify-start flex-col lg:flex-row lg:flex-wrap lg:items-stretch gap-4 lg:ps-5">
 
         <x-card :title="'Verified User'" :count="'5'" :color="'text-success'" class="mt-2" />
         <x-card :title="'Unverified User'" :count="'3'" :color="'text-error'" class="mt-2" />

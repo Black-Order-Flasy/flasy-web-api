@@ -15,7 +15,7 @@ new class extends Component {
     }
 }; ?>
 
-<header id="header" class="sticky z-50 py-2 rounded-xl mt-6  lg:px-5 top-6 mb-2">
+<header id="header" class="sticky z-50 py-2 rounded-xl mt-6  lg:px-5 lg:ms-5 top-6 mb-2">
     <div class="lg:container">
         <nav class="navbar ">
             <label for="my-drawer-2" class="btn btn-ghost text-xs lg:hidden bg-transparent  "><svg
