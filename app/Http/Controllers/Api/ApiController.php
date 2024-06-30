@@ -221,7 +221,7 @@ class ApiController extends Controller
         $weather = $weatherData['weather'];
         $elevation = $response2['elevation'][0];
 
-        $category = 'Waspada';
+        $category = 'Siaga';
         $description = $this->getPredictionDescription($category);
         return response()->json([
             'prediction' => $category,
