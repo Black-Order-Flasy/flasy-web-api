@@ -1,7 +1,7 @@
 @props(['title', 'count', 'color'])
 
 
-<div class="card w-80 lg:w-72 bg-white shadow-md">
+<div class="card w-full lg:w-72 h-32 bg-white shadow-md">
     <div class="card-body">
 
         <div class="flex items-center">

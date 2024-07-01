@@ -1,5 +1,5 @@
 <x-app-layout>
-    <form method="POST" action="{{ route('evacuation.store') }}">
+    <form method="POST" action="{{ secure_url(route('evacuation.store')) }}">
         @csrf
         <div class="my-5 px-5">
             <div class="flex justify-self-center flex-col lg:flex-row lg:flex-wrap lg:items-stretch gap-4 lg:ps-5 ">
@@ -22,7 +22,7 @@
                 <x-card-input-text type="text" :name="'nama'" label="Nama Tempat"
                     placeholder="masukkan nama tempat" />
 
-                <x-card-input-select label="Kecamatan" :name="'kecamatan'" placeholder="Pilih kecamatan"
+                <x-card-input-select selected="" label="Kecamatan" :name="'kecamatan'" placeholder="Pilih kecamatan"
                     :options="[
                         'Biringkanaya' => 'Biringkanaya',
                         'Bontoala' => 'Bontoala',

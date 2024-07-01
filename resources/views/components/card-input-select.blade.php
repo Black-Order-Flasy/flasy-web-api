@@ -1,4 +1,4 @@
-@props(['name', 'label', 'placeholder', 'options' => []])
+@props(['name', 'label', 'placeholder', 'selected', 'options' => []])
 
 
 <div class="card w-full lg:w-96 bg-white shadow-md">
@@ -13,8 +13,8 @@
         <h1 class="text-2xl">
             <select name="{{$name}}" class="select select-bordered w-full max-w-xs @error($name) border-red-500 text-red-500 @enderror">
                 <option disabled selected>{{ $placeholder }}</option>
-                @foreach ($options as $value => $text)
-                    <option value="{{ $value }}">{{ $text }}</option>
+                @foreach ($options as $option => $text)
+                    <option value="{{ $option }}" {{ $selected && $selected == $option ? 'selected' : '' }}>{{ $text }}</option>
                 @endforeach
             </select>
             @error($name)

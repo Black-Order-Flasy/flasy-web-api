@@ -1,4 +1,4 @@
-@props(['name', 'label', 'placeholder', 'type'])
+@props(['name', 'label', 'placeholder', 'type', 'value'])
 
 
 <div class="card w-full lg:w-96 h-full lg:h-40 bg-white shadow-md">
@@ -11,7 +11,7 @@
 
         </div>
         <h1 class="text-2xl">
-            <input name="{{ $name }}" type="{{ $type }}" placeholder="{{ $placeholder }}"
+            <input name="{{ $name }}" type="{{ $type }}" placeholder="{{ $placeholder }}" value="{{$value ?? ''}}"
                 class="input input-bordered w-full max-w-xs  @error($name) border-red-500  @enderror" />
             @error($name)
                 <div class="mt-1 text-sm text-red-500">

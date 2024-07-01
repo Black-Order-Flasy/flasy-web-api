@@ -45,7 +45,7 @@
 
                                 </td>
                                 <td>
-                                    <a class="btn btn-xs btn-flat text-info w-auto h-auto" data-toggle="tooltip" title='Edit'>
+                                    <a href="{{route('evacuation.edit' , $item['id'])}}" class="btn btn-xs btn-flat text-info w-auto h-auto" data-toggle="tooltip" title='Delete'>
                                         <i class="fa-solid fa-pen"></i> Edit
                                     </a>
                                     <a href="{{route('evacuation.delete' , $item['id'])}}" class="btn btn-xs btn-flat text-error w-auto h-auto" data-toggle="tooltip" title='Delete'>
