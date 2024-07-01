@@ -13,10 +13,6 @@ class ApiController extends Controller
 {
     public function getEvacuation(Request $request)
     {
-        // $request->validate([
-        //     'latitude' => 'required|numeric',
-        //     'longitude' => 'required|numeric',
-        // ]);
         $collectionName = 'evacuation_points';
 
         $firestoreService = app()->make(FirestoreService::class, ['collection' => $collectionName]);
@@ -69,21 +65,27 @@ class ApiController extends Controller
             'lon' => $longitude,
             'appid' => $api_key,
         ]);
-        // Panggil API 2 (elevasi)
-        $response2 = Http::get('https://api.open-meteo.com/v1/elevation', [
+        // Panggil API 2 (streamflow)
+        $response2 = Http::get('https://flood-api.open-meteo.com/v1/flood', [
             'latitude' => $latitude,
             'longitude' => $longitude,
+            'daily' => "river_discharge",
+            'forecast_days' => '7',
+            // 'timeformat' => "unixtime",
+            'timezone' => "Asia/Singapore",
         ]);
+        // dd($response2->json());
+        // $streamflow = $response2['daily']['river_discharge'][0];
 
-        // Ambil data elevasi
-        $elevation = $response2['elevation'][0];
 
         // Iterasi melalui setiap entri dalam response API 1
         $predictions = [];
-        foreach ($response1->json()['list'] as $weatherEntry) {
+        foreach ($response1->json()['list'] as $index => $weatherEntry) {
             $weatherData = $this->extractFutureWeatherData($weatherEntry);
             $rainfall = $weatherData['rain'];
             $weather = $weatherData['weather'];
+
+            $streamflow = $response2['daily']['river_discharge'][$index];
 
             $timestamp = $weatherEntry['dt'];
             $date = date('Y-m-d', $timestamp);
@@ -95,11 +97,11 @@ class ApiController extends Controller
                     'hour' => $hour,
                     'prediction' => 'Aman',
                     'weather' => $weather,
-                    'elevation' => $elevation,
+                    'streamflow' => $streamflow,
                     'rainfall' => $rainfall,
                 ];
             } else {
-                $modelInput = $this->prepareModelInput($rainfall, $elevation);
+                $modelInput = $this->prepareModelInput($rainfall, $streamflow);
 
                 $prediction = $this->callMachineLearningModel($ml_model_url, $modelInput);
 
@@ -108,7 +110,7 @@ class ApiController extends Controller
                     'hour' => $hour,
                     'prediction' => $prediction['category'], // hanya menampilkan kategori
                     'weather' => $weather,
-                    'elevation' => $elevation,
+                    'streamflow' => $streamflow,
                     'rainfall' => $rainfall,
                 ];
             }
@@ -139,14 +141,15 @@ class ApiController extends Controller
             'cnt' => 24,
         ]);
 
-        // Panggil API 2 (elevasi)
-        $response2 = Http::get('https://api.open-meteo.com/v1/elevation', [
+        $response2 = Http::get('https://flood-api.open-meteo.com/v1/flood', [
             'latitude' => $latitude,
             'longitude' => $longitude,
+            'daily' => "river_discharge",
+            "forecast_days" => '1',
+            'timezone' => "Asia/Singapore",
         ]);
 
-        // Ambil data elevasi
-        $elevation = $response2['elevation'][0];
+        $streamflow = $response2['daily']['river_discharge'][0];
 
         // Iterasi melalui setiap entri dalam response API 1
         $predictions = [];
@@ -167,21 +170,21 @@ class ApiController extends Controller
                     'hour' => $hour,
                     'prediction' => 'Aman',
                     'weather' => $weather,
-                    'elevation' => $elevation,
+                    'streamflow' => $streamflow,
                     'rainfall' => $rainfall,
 
                 ];
             } else {
-                $modelInput = $this->prepareModelInput($rainfall, $elevation);
+                $modelInput = $this->prepareModelInput($rainfall, $streamflow);
 
                 $prediction = $this->callMachineLearningModel($ml_model_url, $modelInput);
 
                 $predictions[] = [
                     'date' => $date,
                     'hour' => $hour,
-                    'prediction' => $prediction['category'], // hanya menampilkan kategori
+                    'prediction' => $prediction['category'],
                     'weather' => $weather,
-                    'elevation' => $elevation,
+                    'streamflow' => $streamflow,
                     'rainfall' => $rainfall,
                 ];
             }
@@ -210,50 +213,49 @@ class ApiController extends Controller
             'lon' => $longitude,
             'appid' => $api_key
         ]);
-        // Call API 2
-        $response2 = Http::get('https://api.open-meteo.com/v1/elevation', [
+
+        $response2 = Http::get('https://flood-api.open-meteo.com/v1/flood', [
             'latitude' => $latitude,
             'longitude' => $longitude,
+            'daily' => "river_discharge",
+            "forecast_days" => '1',
+            'timezone' => "Asia/Singapore",
         ]);
+
+        // dd($response2->json());
 
         $weatherData = $this->extractCurrentWeatherData($response1->json());
         $rainfall = $weatherData['rain'];
         $weather = $weatherData['weather'];
-        $elevation = $response2['elevation'][0];
+        $streamflow = $response2['daily']['river_discharge'][0];
+        // dd($streamflow);
+        // $elevation = $response2['elevation'][0];
 
-        $category = 'Siaga';
-        $description = $this->getPredictionDescription($category);
-        return response()->json([
-            'prediction' => $category,
-            'description' => $description,
-            'weather' => $weather,
-            'elevation' => $elevation,
-            'rainfall' => $rainfall,
-        ]);
-        // if (!$rainfall) {
-        //     $category = 'Aman';
-        //     $description = $this->getPredictionDescription($category);
-        //     return response()->json([
-        //         'prediction' => $category,
-        //         'description' => $description,
-        //         'weather' => $weather,
-        //         'elevation' => $elevation,
-        //         'rainfall' => $rainfall,
-        //     ]);
-        // } else {
-        //     $modelInput = $this->prepareModelInput($rainfall, $elevation);
-        //     $prediction = $this->callMachineLearningModel($ml_model_url, $modelInput);
-        //     $category = $prediction['category'];
-        //     $description = $this->getPredictionDescription($category);
+        if (!$rainfall) {
+            $category = 'Aman';
+            $description = $this->getPredictionDescription($category);
+            return response()->json([
+                'prediction' => $category,
+                'description' => $description,
+                'weather' => $weather,
+                'streamflow' => $streamflow,
+                'rainfall' => $rainfall,
+            ]);
+        } else {
+            $modelInput = $this->prepareModelInput($rainfall, $streamflow);
+            $prediction = $this->callMachineLearningModel($ml_model_url, $modelInput);
+            // dd($prediction);
+            $category = $prediction['category'];
+            $description = $this->getPredictionDescription($category);
 
-        //     return response()->json([
-        //         'prediction' => $category,
-        //         'description' => $description,
-        //         'weather' => $weather,
-        //         'elevation' => $elevation,
-        //         'rainfall' => $rainfall,
-        //     ]);
-        // }
+            return response()->json([
+                'prediction' => $category,
+                'description' => $description,
+                'streamflow' => $streamflow,
+                'weather' => $weather,
+                'rainfall' => $rainfall,
+            ]);
+        }
 
 
     }
@@ -427,7 +429,8 @@ class ApiController extends Controller
     {
         return [
             'rainfall' => $data1,
-            'elevation' => $data2,
+            'forest_ratio' => '0.59',
+            'streamflow' => $data2,
         ];
     }
 
